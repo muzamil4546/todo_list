@@ -12,14 +12,13 @@ class AddTaskAlertDialog extends StatefulWidget {
 }
 
 class _AddTaskAlertDialogState extends State<AddTaskAlertDialog> {
-  // final taskTagController = TextEditingController();
 
-  final taskNameController = TextEditingController();
-  final taskDesController = TextEditingController();
-  final List<String> taskTags = ['Work', 'School', 'Other'];
+  final TextEditingController taskNameController = TextEditingController();
+  final TextEditingController taskDescController = TextEditingController();
+  final List<String> taskTag = ['Work', 'School', 'Other'];
   String selectedValue = '';
 
-  final firestore = FirebaseFirestore.instance.collection('tasks');
+  // final firestore = FirebaseFirestore.instance.collection('tasks');
 
   @override
   Widget build(BuildContext context) {
@@ -61,13 +60,13 @@ class _AddTaskAlertDialogState extends State<AddTaskAlertDialog> {
               height: 30,
             ),
             TextFormField(
-                controller: taskDesController,
+                controller: taskDescController,
                 keyboardType: TextInputType.multiline,
                 maxLines: 2,
                 style: const TextStyle(fontSize: 16),
                 decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(color: Colors.brown),
+                        borderSide: const BorderSide(color: Colors.grey),
                         borderRadius: BorderRadius.circular(20)),
                     focusedBorder: OutlineInputBorder(
                         borderSide: const BorderSide(color: Colors.brown),
@@ -83,72 +82,90 @@ class _AddTaskAlertDialogState extends State<AddTaskAlertDialog> {
                       borderRadius: BorderRadius.circular(20),
                     ))),
             SizedBox(height: 30),
+            Row(children: [
+              Icon(CupertinoIcons.tag,color: Colors.brown,),
+            SizedBox(width: 15),
             Expanded(child: DropdownButtonFormField(
-                  decoration: InputDecoration(
+            decoration: InputDecoration(
+              focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.brown),borderRadius: BorderRadius.circular(20),
+              ),
               isDense: true,
-              contentPadding: EdgeInsets.zero,
+              contentPadding: EdgeInsets.fromLTRB(20, 20, 20, 20),
               border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(15),
+              ),
             ),
+            isExpanded: true,
+            hint: const Text(
+              'Add a task tag',
+              style: TextStyle(fontSize: 15),
             ),
-                isExpanded: true,
-                hint: const Text(
-                  'Add a task tag',
-                  style: TextStyle(fontSize: 14),
-                ),
-                // buttonHeight: 60,
-                // buttonPadding: const EdgeInsets.only(left: 20, right: 10),
-                // dropdownDecoration: BoxDecoration(
-                //   borderRadius: BorderRadius.circular(15),
-                // ),
-                items: taskTags.map((item) => DropdownMenuItem<String>(value: item,child: Text(item,style: const TextStyle(fontSize: 14,),),)).toList(),
-                onChanged: (String? value) => setState(() {
+            // validator: (value) => value == null ? 'please select the task tag' : null,
+            // buttonHeight: 60,
+            // buttonPadding: const EdgeInsets.only(left: 20, right: 10),
+            // dropdownDecoration: BoxDecoration(
+            //   borderRadius: BorderRadius.circular(15),
+            // ),
+            items: taskTag.map((item) => DropdownMenuItem<String>
+              (value: item,
+              child: Text(item,
+                style: const TextStyle(
+                  fontSize: 14,),
+            ),
+            )).toList(),
+            onChanged: (String? value) => setState(() {
               if (value != null) selectedValue = value;
             },))
-            // TextFormField(
-            //     style: const TextStyle(fontSize: 16),
-            //     decoration: InputDecoration(
-            //         enabledBorder: OutlineInputBorder(
-            //             borderSide: const BorderSide(color: Colors.brown),
-            //             borderRadius: BorderRadius.circular(20)),
-            //         focusedBorder: OutlineInputBorder(
-            //             borderSide: const BorderSide(color: Colors.brown),
-            //             borderRadius: BorderRadius.circular(20)),
-            //         contentPadding: const EdgeInsets.symmetric(
-            //             vertical: 20, horizontal: 20),
-            //         hintText: 'Add a task tag',
-            //         icon: const Icon(
-            //           CupertinoIcons.tag,
-            //           color: Colors.brown,
-            //         ),
-            //         border: OutlineInputBorder(
-            //           borderRadius: BorderRadius.circular(20),
-            //         ))),
+            )]
             )],
-        )),
+        ),
+        ),
       ),
       actions: [
         ElevatedButton(
           onPressed: () {
             Navigator.of(context).pop();
           },
-          style: ElevatedButton.styleFrom(primary: Colors.grey),
-          child: const Text('Cancel',
-              style: TextStyle(color: Colors.white, fontSize: 15)),
+          style: ElevatedButton.styleFrom(
+            primary: Colors.grey,
+          ),
+          child: const Text('Cancel'),
         ),
         ElevatedButton(
           onPressed: () {
-            firestore.doc().set({
-              'taskName': taskNameController.text.toString(),
-              'taskDesc': taskDesController.text.toString(),
-              'taskTags': selectedValue
-            });
+            final taskName = taskNameController.text;
+            final taskDesc = taskDescController.text;
+            final taskTag = selectedValue;
+            _addTasks(taskName: taskName, taskDesc: taskDesc, taskTag: taskTag);
+            Navigator.of(context, rootNavigator: true).pop();
           },
-          style: ElevatedButton.styleFrom(primary: Colors.brown),
-          child: const Text('Save',
-              style: TextStyle(color: Colors.white, fontSize: 15)),
-        )
+          style: ElevatedButton.styleFrom(
+            primary: Colors.brown,
+          ),
+          child: const Text('Save',),
+        ),
       ],
     );
+  }
+
+  Future _addTasks({required String taskName, required String taskDesc, required String taskTag}) async {
+    DocumentReference docRef = await FirebaseFirestore.instance.collection('tasks').add(
+      {
+        'taskName': taskName,
+        'taskDesc': taskDesc,
+        'taskTag': taskTag,
+      },
+    );
+    String taskId = docRef.id;
+    await FirebaseFirestore.instance.collection('tasks').doc(taskId).update(
+      {'id': taskId},
+    );
+    _clearAll();
+  }
+
+  void _clearAll() {
+    taskNameController.text = '';
+    taskDescController.text = '';
   }
 }
