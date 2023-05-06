@@ -1,8 +1,12 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:todo_list/uiscreens/tasks.dart';
+import 'package:todo_list/uiscreens/tasks.dart';
 import '../widgets/add_task_alert_dialog.dart';
-import '../widgets/customTextField.dart';
+import 'categories.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -13,9 +17,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-
+  final PageController pageController = PageController(initialPage: 0);
   final List widgets = [Container(color: Colors.white),Container(color: Colors.black)];
-  int selectIndex = 0;
+ late int selectIndex = 0;
   @override
   Widget build(BuildContext context) {
 
@@ -38,27 +42,51 @@ class _HomePageState extends State<HomePage> {
           shape: const CircularNotchedRectangle(),
           notchMargin: 5.0,
           clipBehavior: Clip.antiAlias,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(onPressed: (){
+          child: SizedBox(
+            height: kBottomNavigationBarHeight,
+            child: BottomNavigationBar(
+              backgroundColor: Colors.brown,
+              currentIndex: selectIndex,
+              selectedItemColor: Colors.white,
+              unselectedItemColor: CupertinoColors.systemGrey3,
+              onTap: (index){
                 setState(() {
-                  selectIndex=0;
-                });
-                },
-                  icon: const Icon(CupertinoIcons.square_list,color: Colors.white,),
-                iconSize: 30,
-              ),
-              IconButton(onPressed: (){
-                setState(() {
-                  selectIndex=1;
+                  selectIndex = index;
+                  pageController.jumpToPage(index);
                 });
               },
-                icon: const Icon(CupertinoIcons.tag,color: Colors.white,),
-                iconSize: 30,
-              ),
-            ],
-          ),
+              items: [
+                BottomNavigationBarItem(
+                    icon: Icon(
+                        CupertinoIcons.square_list),
+                    label: ''
+                ),
+                BottomNavigationBarItem(
+                    icon: Icon(CupertinoIcons.tag),label: ''
+                )
+              ],
+            ),)
+          // child: Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+          //   children: [
+          //     IconButton(onPressed: (index){
+          //       setState(() {
+          //         Text('Test',style: TextStyle(fontSize: 40,color: Colors.pink),);
+          //         selectIndex=index;
+          //       });
+          //       },
+          //         icon: const Icon(CupertinoIcons.square_list,color: Colors.white,),
+          //       iconSize: 30,
+          //     ),
+          //     IconButton(onPressed: (){
+          //       setState(() {
+          //       });
+          //     },
+          //       icon: const Icon(CupertinoIcons.tag,color: Colors.white,),
+          //       iconSize: 30,
+          //     ),
+          //   ],
+          // ),
         ),
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.brown,
@@ -69,9 +97,17 @@ class _HomePageState extends State<HomePage> {
             color: Colors.white,)
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        body: Center(
-            child: widgets[selectIndex],
-        )
+        body: PageView(
+          controller: pageController,
+          children: <Widget> [
+            Center(
+              child:Tasks(),
+            ),
+            Center(
+                child: Categories()
+            ),
+          ],
+        ),
       ),
     );
   }
