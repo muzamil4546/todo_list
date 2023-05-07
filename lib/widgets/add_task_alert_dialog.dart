@@ -88,7 +88,8 @@ class _AddTaskAlertDialogState extends State<AddTaskAlertDialog> {
             Expanded(child: DropdownButtonFormField(
             decoration: InputDecoration(
               focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Colors.brown),borderRadius: BorderRadius.circular(20),
+                borderSide: const BorderSide(color: Colors.brown),
+                borderRadius: BorderRadius.circular(20),
               ),
               isDense: true,
               contentPadding: EdgeInsets.fromLTRB(20, 20, 20, 20),
@@ -101,12 +102,6 @@ class _AddTaskAlertDialogState extends State<AddTaskAlertDialog> {
               'Add a task tag',
               style: TextStyle(fontSize: 15),
             ),
-            // validator: (value) => value == null ? 'please select the task tag' : null,
-            // buttonHeight: 60,
-            // buttonPadding: const EdgeInsets.only(left: 20, right: 10),
-            // dropdownDecoration: BoxDecoration(
-            //   borderRadius: BorderRadius.circular(15),
-            // ),
             items: taskTag.map((item) => DropdownMenuItem<String>
               (value: item,
               child: Text(item,

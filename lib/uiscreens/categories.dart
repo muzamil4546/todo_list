@@ -11,9 +11,10 @@ class _CategoriesState extends State<Categories> {
   @override
   Widget build(BuildContext context) {
     return Center(
-        child: Text('Categories Text',
+        child: Text('Categories icon page',
           style: TextStyle(
-              color: Colors.brown),
+              color: Colors.brown,
+              fontSize: 30),
         )
     );
   }
